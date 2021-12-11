@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Testing_page</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style type="text/css">
+  .hhh{
+      color: white;
+    }
+    .hk{
+      color: white;
+    }
+    .jumbotron{
+      background-color: blue;
+      margin: 20;
+
+    }
+    h4{
+      font-size: 30;
+    }
+    .message{
+      color: green;
+    }
+</style>
+
+</head>
+
+<body>
+  <div class="jumbotron jumbotron-fluid">
+    <div class="container">
+    <h2 class="hhh">Alagappa University</h2>
+    <p class="hk">Alagappa Instiute Of Skill Development</p>
+      </div>
+    </div>
+
+<div class="container">
+    <div class="row">
+
+        <div class="col-md-3"> <h4 class=""> <i class="fa fa-edit"></i> Add Students</h4>
+
+          {% for message in get_flashed_messages() %}
+        <p class="message">{{ message }}</p>
+        {% endfor %}
+
+    <form id="one" class="form-group" method="POST">
+        <div class="form-group">
+        <label>REGISTER NO</label><br>
+        <input type="number" name="regno" class="form-control" placeholder="Enter the register number" id="reg" required>
+      </div>
+      <div class="form-group">
+        <label>NAME</label><br>
+        <input type="text" name="nam" class="form-control" placeholder="Enter the name" id="name" required>
+      </div>
+       <div class="form-group">
+        <label>AGE</label><br>
+        <input type="number" name="age" class="form-control" placeholder="Enter the Age" id="age" required>
+      </div>
+       <div class="form-group">
+        <label>CITY</label><br>
+        <input type="text" name="city" class="form-control" placeholder="Enter the city" id="city" required>
+      </div>
+        <input type="submit" class="btn btn-success" id="submit" value="Save Details" />
+
+      </form>
+    </div>
+
+
+         <div class="col-md-9">
+          <h4 class=""> <i class="fa fa-users"></i> Studens Details</h4>
+  	<table class="table">
+    <thead class="table-striped">
+      <tr>
+        <th>REG NO</th>
+        <th>NAME</th>
+        <th>AGE</th>
+        <th>CITY</th>
+        <th>Edit</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for res in datas %}
+    <tr>
+        <td>{{res.REGNO}}</td>
+        <td>{{res.NAME}}</td>
+        <td>{{res.AGE}}</td>
+        <td>{{res.CITY}}</td>
+        <!-- <td><a class="btn btn-primary edit" data-toggle="modal" data-target="#myModal" data-name = '{{res.name}}' data-email = '{{res.email}}' data-pass = '{{res.pass}}' data-id = '{{res.ID}}' onclick="">edit</a></td> -->
+        <td><a href="{{url_for('edit',id = res.REGNO)}}" class="btn btn-primary edit" onclick="">edit</a></td>
+        <td><a class="btn btn-danger" href="{{url_for('delete',id = res.REGNO)}}" >Remove</a></td>
+
+      </tr>
+    {% endfor %}
+
+
+    </tbody>
+  </table>
+            <!-- Modal -->
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header bg-primary" style="color: white;">
+
+          <h4 class="modal-title" style="font-weight: bold;">Edit Data</h4>
+          <button type="button" class="close" data-dismiss="modal" style="background-color: red;padding: 22px;color: white;">&times;</button>
+        </div>
+
+              <div class="modal-body">
+        <div class="form-group">
+          <label>Name</label><br><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+          <input type="text" name="nam" id="nam" class="form-control" value="{{datas.name}}" />
+        </div>
+        <div class="form-group">
+          <label>Email</label><br>
+          <input type="email" name="ag" id="ag" class="form-control" value="{{datas.email}}" />
+        </div>
+        <div class="form-group">
+          <label>Password</label><br>
+          <input type="text" name="cit" id="cit" class="form-control" value="{{datas.pass}}" />
+          <input type="hidden" name="id" class="form-control" id="id" required>
+        </div>
+      </div>
+
+        <div class="modal-footer">
+            <button class="btn btn-success">Update</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal" style="background-color: red;color: white;">Close</button>
+        </div>
+      </div>
+
+    </div>
+    </div>
+
+
+</div>
+
+
+<script type="text/javascript">
+  $(document).ready(function(){
+
+    $(document).on("click",".edit",function(){
+      var id_a = $(this).attr("data-id");
+      var name_a = $(this).attr("data-name");
+      var email_a = $(this).attr("data-email");
+      var pass_a = $(this).attr("data-pass");
+      alert(name_a);
+    });
+  }):
+
+</script>
+
+
+</body>
+</html>
