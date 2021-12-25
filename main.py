@@ -1,83 +1,83 @@
+import json
+
+from flask_pymongo import *
 from flask import *
-from flask_mysqldb import MySQL
+
 app = Flask(__name__)
+
+app.config["MONGO_URI"] = "mongodb+srv://apitest:Shiva12345@cluster0.q8a2d.mongodb.net/first_db?retryWrites=true&w=majority"
+mongo = PyMongo(app)
+db = mongo.db.students
 app.secret_key = 'abc'
 
-app.config['MYSQL_HOST'] = 'sql3.freesqldatabase.com'
-app.config['MYSQL_USER'] = 'sql3458594'
-app.config['MYSQL_PASSWORD'] = 'LiryPtBnYd'
-app.config['MYSQL_DB'] = 'sql3458594'
-app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
-mysql = MySQL(app)
 @app.route('/')
-def sample():
-    return "Welcome Shiva"
-#Home Page
-@app.route('/home/',methods= ['GET','POST'])
 def home():
-    if request.method == 'GET':
-        con = mysql.connection.cursor()
-        con.execute('SELECT * FROM college')
-        data = con.fetchall()
-        return jsonify(data)
+    try:
+        res = db.find()
+        return jsonify([x for x in res])
+    except:
+        return {"Result": "Error Accured...."}
 
+@app.route('/viewall/',methods=['GET','POST'])
+def viewall():
+    try:
+        res = db.find()
+        return jsonify([x for x in res])
+    except:
+        return {"Result":"Error Accured...."}
+
+@app.route('/view/<int:userid>',methods=['GET','POST'])
+def view(userid):
+    res = db.find_one({"_id":userid})
+    return jsonify(res)
+
+@app.route('/insert/',methods=['GET','POST'])
+def insert():
     if request.method == 'POST':
-        con = mysql.connection.cursor()
-        regno = request.form['regno']
-        name = request.form['nam']
-        age = request.form['age']
-        city = request.form['city']
-        con.execute('INSERT INTO college(REGNO,NAME,AGE,CITY) VALUE(%s,%s,%s,%s)',(regno,name,age,city))
-        mysql.connection.commit()
-        con.close()
-        flash('Added Successfully...')
-        return redirect(url_for('home'))
-#delete data
-@app.route('/delete/<int:id>',methods=['GET','POST'])
-def delete(id):
-    con = mysql.connection.cursor()
-    sql = 'DELETE FROM college WHERE REGNO = {}'
-    con.execute(sql.format(id))
-    mysql.connection.commit()
-    con.close()
-    flash('Removed .....')
-    return redirect(url_for('home'))
-#edit data
-@app.route("/edit/<string:id>",methods=['GET','POST'])
-def edit(id):
-    #update
-    if request.method == 'POST':
-        con = mysql.connection.cursor()
-        regno = request.form['regno']
-        name = request.form['name']
-        age = request.form['age']
-        city = request.form['city']
-        sql = 'UPDATE college SET REGNO=%s,NAME=%s,AGE=%s,CITY=%s WHERE REGNO=%s'
-        con.execute(sql,[regno,name, age, city,regno])
-        mysql.connection.commit()
-        con.close()
-        flash('Updated...')
-        return redirect(url_for('home'))
-    #fetch update data
-    con = mysql.connection.cursor()
-    sql = 'SELECT * FROM college WHERE REGNO = {}'
-    con.execute(sql.format(id))
-    res = con.fetchone()
-    mysql.connection.commit()
-    con.close()
-    return render_template('editpage.html',datas = res)
+        try:
+            data = request.data
+            data = data.decode()
+            data = json.loads(data)
+            regno = data['regno']
+            name = data['name']
+            age = data['age']
+            email = data['email']
+            res = db.insert_one({'_id':regno,'name':name,'age':age,'email':email})
+            scs = {"Result": "Successfully Created..."}
+            return scs
+        except:
+            return {"Result": "Duplicate Entry..."}
+#update
+@app.route('/update/',methods=['PUT'])
+def Update():
+    if request.method == 'PUT':
+        try:
+            data = request.data
+            data = data.decode()
+            data = json.loads(data)
+            regno = data['regno']
+            name = data['name']
+            age = data['age']
+            email = data['email']
+            update = {"$set": {"name": name,'age':age,"email": email}}
+            where = {"_id": regno}
+            db.update_many(where, update)
+            return {"Result": "Data Updated Successfully..."}
+        except:
+            return {"Result": "Something went wrong..."}
 
+@app.route('/delete/',methods=['DELETE'])
+def delete():
+    if request.method == 'DELETE':
+        try:
+            data = request.data
+            data = data.decode()
+            data = json.loads(data)
+            regno = data['regno']
+            db.delete_one({"_id":regno})
+            return {"Result": "Data Deleted Sucessfully..."}
+        except:
+            return {"Result": "Something went wrong Error Accured..."}
 
-
-
-
-
-
-
-
-
-
-
-
-if (__name__ == '__main__'):
+if __name__ == "__main__":
     app.run(debug=True)
