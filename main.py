@@ -66,15 +66,15 @@ def Update():
         except:
             return {"Result": "Something went wrong..."}
 
-@app.route('/delete/',methods=['DELETE'])
-def delete():
+@app.route('/delete/<int:userid>/',methods=['DELETE'])
+def delete(userid):
     if request.method == 'DELETE':
         try:
-            data = request.data
-            data = data.decode()
-            data = json.loads(data)
-            regno = data['regno']
-            db.delete_one({"_id":regno})
+            # data = request.data
+            # data = data.decode()
+            # data = json.loads(data)
+            # regno = data['regno']
+            db.delete_one({"_id":userid})
             return {"Result": "Data Deleted Sucessfully..."}
         except:
             return {"Result": "Something went wrong Error Accured..."}
