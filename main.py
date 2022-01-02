@@ -10,13 +10,14 @@ mongo = PyMongo(app)
 db = mongo.db.students
 app.secret_key = 'abc'
 
-@app.route('/')
+@app.route('/',methods=['GET','POST'])
 def home():
     try:
         res = db.find()
-        return jsonify([x for x in res])
+        lis = [x for x in res]
+        return jsonify(lis)
     except:
-        return {"Result": "Error Accured...."}
+        return jsonify({"Result": "Error Accu   red...."})
 
 @app.route('/viewall/',methods=['GET','POST'])
 def viewall():
@@ -34,7 +35,6 @@ def view(userid):
 @app.route('/insert/',methods=['GET','POST'])
 def insert():
     if request.method == 'POST':
-        try:
             data = request.data
             data = data.decode()
             data = json.loads(data)
@@ -42,11 +42,17 @@ def insert():
             name = data['name']
             age = data['age']
             email = data['email']
-            res = db.insert_one({'_id':regno,'name':name,'age':age,'email':email})
-            scs = {"Result": "Successfully Created..."}
-            return scs
-        except:
-            return {"Result": "Duplicate Entry..."}
+            find = db.find_one({"_id":int(regno)})
+            if(str(find)=='None'):
+                try:
+                    res = db.insert_one({'_id': regno, 'name': name, 'age': age, 'email': email})
+                    scs = {"Result": "Successfully Created..."}
+                    return scs
+                except:
+                    return {"Result":"error"}
+            else:
+                return {"Result":"duplicate entry..."}
+
 #update
 @app.route('/update/',methods=['PUT'])
 def Update():
@@ -70,10 +76,6 @@ def Update():
 def delete(userid):
     if request.method == 'DELETE':
         try:
-            # data = request.data
-            # data = data.decode()
-            # data = json.loads(data)
-            # regno = data['regno']
             db.delete_one({"_id":userid})
             return {"Result": "Data Deleted Sucessfully..."}
         except:
