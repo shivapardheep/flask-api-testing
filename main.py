@@ -13,7 +13,7 @@ app.secret_key = 'abc'
 @app.route('/')
 def home():
     try:
-        res = db.find()
+        res = db.finda()
         return jsonify([x for x in res])
     except:
         return {"Result": "Error Accured...."}
